@@ -1,12 +1,12 @@
 <?php defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Theme_Basekit extends Theme {
+class Theme_Sxsw extends Theme {
 
-    public $name			= 'BaseKit';
+    public $name			= 'SXSW';
     public $author			= 'Joshua Pekera';
     public $author_website	= 'http://joshuapekera.com/';
     public $website			= 'http://joshuapekera.com/';
-    public $description		= 'A prototyping base theme.';
+    public $description		= 'A theme for the Intermark trip to Austin.';
     public $version			= '1.0';
 	public $options 		= array(
 			'show_breadcrumbs' => 	array('title' 		=> 'Show Breadcrumbs',
