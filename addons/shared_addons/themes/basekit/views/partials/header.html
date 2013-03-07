@@ -17,8 +17,8 @@
 	<!-- End base -->
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url:base }}/sitemap/xml" />
   	<!-- CSS. No need to specify the media attribute unless specifically targeting a media type, leaving blank implies media=all -->
-    {{ theme:css file="bootstrap.css" }}
-    {{ theme:css file="adapt-bootstrap.css" }}
+    {{ theme:css file="style.css" }}
+    {{ theme:css file="animate.css" }}
 	<style type="text/css">
       body {
         padding-top: 60px;
@@ -28,10 +28,6 @@
         padding: 9px 0;
       }
     </style>
-    {{ theme:css file="bootstrap-responsive.css" }}
-    {{ theme:css file="styles.css" }}
-    {{ theme:css file="animate.css" }}
-    {{ theme:css file="keyframes.css" }}
   	<!-- End CSS-->
   	<!-- All JavaScript at the bottom, except for Modernizr. -->
   	{{ theme:js file="libs/modernizr.js" }}	
@@ -42,23 +38,18 @@
     {{ theme:favicon rel="apple-touch-icon-precomposed" file="ico/apple-touch-icon-114-precomposed.png" }}
     {{ theme:favicon rel="apple-touch-icon-precomposed" file="ico/apple-touch-icon-72-precomposed.png" }}
     {{ theme:favicon rel="apple-touch-icon-precomposed" file="ico/apple-touch-icon-57-precomposed.png" }}
-	<!-- Google Analytics -->
-	{{ integration:analytics }}	
 </head>
 
 <body>
 	<div class="navbar navbar-fixed-top">
       <div class="navbar-inner">
-        <div class="container-fluid">
+        <div class="container">
           <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
           <a class="brand" href="{{ url:base }}">{{ settings:site_name }}</a>
-          <div class="btn-group pull-right">
-            {{ theme:partial name="user" }}
-          </div>
           <div class="nav-collapse">
             <ul class="nav">
               {{ navigation:links group="header" }}
