@@ -54,3 +54,4 @@ uploads/*
 !addons/shared_addons/field_types
 !addons/shared_addons/field_types/*
 !addons/shared_addons/field_types/index.html
+/addons/shared_addons/themes/sxsw/codekit-config.json
