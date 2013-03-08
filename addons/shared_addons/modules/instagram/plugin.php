@@ -11,26 +11,8 @@
 class Plugin_Instagram extends Plugin
 {
 	/**
-	 * Item List
-	 * Usage:
-	 * 
-	 * {{ sample:items limit="5" order="asc" }}
-	 *      {{ id }} {{ name }} {{ slug }}
-	 * {{ /sample:items }}
-	 *
-	 * @return	array
+	 * Popular Instagram Posts
 	 */
-	function items()
-	{
-		$limit = $this->attribute('limit');
-		$order = $this->attribute('order');
-		
-		return $this->db->order_by('name', $order)
-						->limit($limit)
-						->get('sample_items')
-						->result_array();
-	}
-
 	function popular()
 	{
 		$this->load->library('Instagram_api');
@@ -45,6 +27,43 @@ class Plugin_Instagram extends Plugin
 				'user_profile_pic' => $media->user->profile_picture,
 				'url' => $media->images->standard_resolution->url,
 				'thumb_url' =>$media->images->thumbnail->url
+			);
+		}
+		return $output;
+	}
+
+	/**
+	 * Subscription Instagram Posts
+	 */
+	function tag_subscription()
+	{
+		$this->load->model('instagram_m');
+
+		$tag = $this->attribute('tag');
+		$limit = $this->attribute('limit');
+		$offset = $this->attribute('offset');
+
+		if(!$limit)
+		{
+			$limit = 20;
+		}
+
+		if(!$offset)
+		{
+			$offset = 0;
+		}
+
+		$output = array();
+		$media_data = $this->instagram_m->get_tag_subscription($tag,$limit,$offset);
+		foreach($media_data as $media)
+		{
+			$output[] = array(
+				'user_id' => $media->user_id,
+				'thumbnail' => $media->thumbnail,
+				'low_resolution' => $media->low_resolution,
+				'standard_resolution' => $media->standard_resolution,
+				'caption' => $media->caption,
+				'created_time' => $media->created_time
 			);
 		}
 		return $output;

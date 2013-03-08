@@ -14,7 +14,7 @@
 			<ul>
 				<li class="<?php echo alternator('', 'even'); ?>">
 					<label for="name"><?php echo lang('instagram:object'); ?> <span>*</span></label>
-					<div class="input"><?php echo form_input('object', set_value('object'), 'class="width-15"'); ?></div>
+					<div class="input"><?php echo form_dropdown('object', array('tag' => 'Tag','user' => 'User'), set_value('object')); ?></div>
 				</li>
 
 				<li class="<?php echo alternator('', 'even'); ?>">

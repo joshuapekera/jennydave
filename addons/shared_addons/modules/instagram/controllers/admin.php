@@ -19,8 +19,6 @@ class Admin extends Admin_Controller
 		$this->lang->load('instagram');
 		$this->load->library('Instagram_api');
 
-		$this->instagram_api->access_token = $this->session->userdata('instagram-token');
-
 		// We'll set the partials and metadata here since they're used everywhere
 		$this->template->append_js('module::admin.js')
 			->append_css('module::admin.css');
@@ -31,24 +29,20 @@ class Admin extends Admin_Controller
 	 */
 	public function index() 
 	{
-		$recent = $this->instagram_api->getUserRecent('30979615');
-		print_r($recent);
-		print_r($this->session->userdata('instagram-token'));
-
+		$data['settings'] = $this->instagram_m->get_settings();
 		$this->template->title($this->module_details['name'])
-			->build('admin/form');
+			->build('admin/form',$data);
 	}
 
 	/**
-	 * List all items
+	 * Get popular Instagrm media
 	 */
-	public function items()
+	public function popular()
 	{
 		$data['popular_media'] = $this->instagram_api->getPopularMedia();
 
-		// Build the view with sample/views/admin/items.php
 		$this->template->title($this->module_details['name'])
-			->build('admin/items',$data);
+			->build('admin/popular',$data);
 	}
 
 	/**
@@ -61,16 +55,35 @@ class Admin extends Admin_Controller
 		{	
 			$auth_response = $this->instagram_api->authorize($_GET['code']);
 
+			$token = $auth_response->access_token;
+			$username = $auth_response->user->username;
+			$picture = $auth_response->user->profile_picture;
+			$user_id = $auth_response->user->id;
+
 			// Set up session variables containing some useful Instagram data
-			$sess_data = array(
-				'instagram-token' => $auth_response->access_token,
-				'instagram-username' => $auth_response->user->username,
-				'instagram-profile-picture' => $auth_response->user->profile_picture,
-				'instagram-user-id' => $auth_response->user->id,
-				'instagram-full-name' => $auth_response->user->full_name,
+			$insert_data = array(
+				'token' => $token,
+				'username' => $username,
+				'picture' => $picture,
+				'user_id' => $user_id
 			);
+
+			$sess_data = array(
+				'instagram-token' => $token,
+				'instagram-username' => $username,
+				'instagram-profile-picture' => $picture,
+				'instagram-user-id' => $user_id
+			);
+
+			$query = $this->db->select('user_id')->where('user_id', $user_id)->get('instagram_users');
+			if($query->num_rows() == 0)
+			{
+				$this->db->insert('instagram_users', $insert_data);
+			}
+
+			// Set settion data
 			$this->session->set_userdata($sess_data);
-			
+
 			$this->session->set_flashdata('success', 'You have succesfully signed in with Instagram.');
 			redirect('/admin/instagram');
 		}

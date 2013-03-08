@@ -31,6 +31,8 @@ class Instagram_api {
     */
     protected $codeigniter_instance;
 
+    protected $instagram_settings;
+
     /*
     * Create an array of the urls to be used in api calls
     * The urls contain conversion specifications that will be replaced by sprintf in the functions
@@ -72,9 +74,11 @@ class Instagram_api {
         // Set the CodeIgniter instance variable
         $this->codeigniter_instance =& get_instance();
 
-        // Load the Instagram API language file
-        $this->codeigniter_instance->load->config('config');
-    
+        // Load model
+        $this->codeigniter_instance->load->model('instagram_m');
+
+        // Get settings
+        $this->instagram_settings = $this->codeigniter_instance->instagram_m->get_settings();    
     }
     
     /*
@@ -89,7 +93,7 @@ class Instagram_api {
     */
     function instagramLogin() {
     
-        return 'https://api.instagram.com/oauth/authorize/?client_id=' . $this->codeigniter_instance->config->item('instagram_client_id') . '&redirect_uri=' . $this->codeigniter_instance->config->item('instagram_callback_url') . '&response_type=code';
+        return 'https://api.instagram.com/oauth/authorize/?client_id=' . $this->instagram_settings['instagram_client_id'] . '&redirect_uri=' . $this->instagram_settings['instagram_redirect_uri'] . '&response_type=code';
     
     }
     
@@ -137,7 +141,7 @@ class Instagram_api {
     function authorize($code)
     {
         $authorization_url = 'https://api.instagram.com/oauth/access_token';
-        return $this->__apiCall($authorization_url, "client_id=" . $this->codeigniter_instance->config->item('instagram_client_id') . "&client_secret=" . $this->codeigniter_instance->config->item('instagram_client_secret') . "&grant_type=authorization_code&redirect_uri=" . $this->codeigniter_instance->config->item('instagram_callback_url') . "&code=" . $code);
+        return $this->__apiCall($authorization_url, "client_id=" . $this->instagram_settings['instagram_client_id'] . "&client_secret=" . $this->instagram_settings['instagram_client_secret'] . "&grant_type=authorization_code&redirect_uri=" . $this->instagram_settings['instagram_redirect_uri'] . "&code=" . $code);
     }
     
     /*
@@ -147,7 +151,7 @@ class Instagram_api {
     */
     function getPopularMedia()
     {
-        $popular_media_request_url = 'https://api.instagram.com/v1/media/popular?client_id=' . $this->codeigniter_instance->config->item('instagram_client_id');
+        $popular_media_request_url = 'https://api.instagram.com/v1/media/popular?client_id=' . $this->instagram_settings['instagram_client_id'];
         return $this->__apiCall($popular_media_request_url);
     }
     
@@ -193,8 +197,6 @@ class Instagram_api {
     function getUserRecent($user_id, $max_id = null, $min_id = null, $max_timestamp = null, $min_timestamp = null) {
     
      $user_recent_request_url = sprintf($this->api_urls['user_recent'], $user_id, $this->access_token, $max_id, $min_id, $max_timestamp, $min_timestamp);
-     
-     echo '<p>' . $user_recent_request_url . '</p>';
     
      return $this->__apiCall($user_recent_request_url);
     

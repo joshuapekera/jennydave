@@ -10,6 +10,8 @@
 
 class Realtime extends Admin_Controller
 {
+	private $instagram_settings;
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -25,6 +27,21 @@ class Realtime extends Admin_Controller
 		// We'll set the partials and metadata here since they're used everywhere
 		$this->template->append_js('module::admin.js')
 			->append_css('module::admin.css');
+
+		// See if logged into Instagram
+		if(!$this->session->userdata('instagram-token'))
+		{
+			$this->session->set_flashdata('error', 'Please login to Instagram.');
+			redirect('admin/instagram');
+		}
+
+		// Get settings
+		$this->instagram_settings = $this->instagram_m->get_settings();
+		if($this->instagram_settings['instagram_client_secret'] == "")
+		{
+			$this->session->set_flashdata('error', 'Please add your Instagram settings to the system.');
+			redirect('admin/instagram');
+		}
 	}
 
 	/**
@@ -32,7 +49,7 @@ class Realtime extends Admin_Controller
 	 */
 	public function index() 
 	{
-		$data['subscriptions'] = $this->instagram_m->get_remote_subscriptions($this->config->item('instagram_client_secret'),$this->config->item('instagram_client_id'));
+		$data['subscriptions'] = $this->instagram_m->get_remote_subscriptions($this->instagram_settings['instagram_client_secret'],$this->instagram_settings['instagram_client_id']);
 
 		$this->form_validation->set_rules('object', 'Object Type', 'trim|required');
 		$this->form_validation->set_rules('slug', 'Slug', 'trim|required');
@@ -68,8 +85,9 @@ class Realtime extends Admin_Controller
 			{
 				// Strore subscription in DB
 				$data = array(
-				   'object' => $this->input->post('object'),
-				   'slug' => $this->input->post('slug')
+					'user_id' => $this->session->userdata('instagram-user-id'),
+					'object' => $this->input->post('object'),
+					'slug' => $this->input->post('slug')
 				);
 				$this->db->insert('instagram_subscriptions', $data);
 
@@ -90,8 +108,8 @@ class Realtime extends Admin_Controller
 	function subscribe($object,$slug)
 	{
 		// API Info
-		$client_id = $this->config->item('instagram_client_id');
-		$client_secret = $this->config->item('instagram_client_secret');
+		$client_id = $this->instagram_settings['instagram_client_id'];
+		$client_secret = $this->instagram_settings['instagram_client_secret'];
 		$object = $object; // tag,user
 		$object_id = $slug;
 		$aspect = 'media';
@@ -151,7 +169,7 @@ class Realtime extends Admin_Controller
 	 */
 	public function delete($id,$object,$object_id = null)
 	{
-		$url = "https://api.instagram.com/v1/subscriptions?client_secret=".$this->config->item('instagram_client_secret')."&client_id=".$this->config->item('instagram_client_id')."&id=".$id;
+		$url = "https://api.instagram.com/v1/subscriptions?client_secret=".$this->instagram_settings['instagram_client_secret']."&client_id=".$this->instagram_settings['instagram_client_id']."&id=".$id;
 		$opts = array(
 			'http' => array(
 				'method' => 'DELETE'

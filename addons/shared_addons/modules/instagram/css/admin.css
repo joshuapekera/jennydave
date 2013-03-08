@@ -1,0 +1,17 @@
+.authorized {
+	background-color:#f1f1f1;
+	border:1px solid #cccccc;
+	border-radius:4px;
+	padding:20px;
+	text-align:center;
+	width:240px;
+}
+
+.authorized .image-wrap {
+	display:block;
+	-webkit-border-radius: 50em;
+	-moz-border-radius: 50em;
+	box-shadow: inset 0px 0px 10px 0px #333333;
+	margin:0 auto 20px auto;
+	border-radius: 50em;
+}

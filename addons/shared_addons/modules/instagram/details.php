@@ -102,6 +102,10 @@ class Module_Instagram extends Module {
 				'unsigned' => TRUE,
 				'auto_increment' => TRUE
 			),
+	        'user_id' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '50',
+			),
 	        'object' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '50',
@@ -114,6 +118,38 @@ class Module_Instagram extends Module {
 		$this->dbforge->add_field($fields);
 		$this->dbforge->add_key('id', TRUE);
 		if(!$this->dbforge->create_table('instagram_subscriptions'))
+		{
+			return false;
+		}
+
+		// Add table 'instagram_users'
+		$fields = array(
+	        'id' => array(
+				'type' => 'INT',
+				'constraint' => 8, 
+				'unsigned' => TRUE,
+				'auto_increment' => TRUE
+			),
+	        'user_id' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '50',
+			),
+	        'token' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '100',
+			),
+	        'username' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '50',
+			),
+	        'picture' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '200',
+			)
+		);
+		$this->dbforge->add_field($fields);
+		$this->dbforge->add_key('id', TRUE);
+		if(!$this->dbforge->create_table('instagram_users'))
 		{
 			return false;
 		}
@@ -170,6 +206,10 @@ class Module_Instagram extends Module {
 				'type' => 'INT',
 				'constraint' => 11,
 			),
+	        'object_id' => array(
+				'type' => 'VARCHAR',
+				'constraint' => '50',
+			),
 	        'thumbnail' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '100',
@@ -181,10 +221,6 @@ class Module_Instagram extends Module {
 	        'standard_resolution' => array(
 				'type' => 'VARCHAR',
 				'constraint' => '100',
-			),
-	        'tags' => array(
-				'type' => 'TEXT',
-				'null' => TRUE
 			),
 	        'caption' => array(
 				'type' => 'TEXT',
@@ -211,6 +247,7 @@ class Module_Instagram extends Module {
 		$this->dbforge->drop_table('instagram_subscriptions');
 		$this->dbforge->drop_table('instagram_posts');
 		$this->dbforge->drop_table('instagram_media');
+		$this->dbforge->drop_table('instagram_users');
 		/*
 		$this->db->delete('settings', array('module' => 'sample'));
 		{

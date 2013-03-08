@@ -14,9 +14,8 @@ class Instagram extends Public_Controller
 	{
 		parent::__construct();
 
+		$this->load->model('instagram_m');
 		$this->load->library('Instagram_api');
-
-		$this->instagram_api->access_token = $this->session->userdata('instagram-token');
 	}
 
 	public function index($tag = null)
@@ -40,6 +39,12 @@ class Instagram extends Public_Controller
 		}
 		else
 		{
+			// Get access token
+			$token_data = $this->instagram_m->get_token($tag);
+
+			// Load Access Token
+			$this->instagram_api->access_token = $token_data[0]->token;
+
 			// Verify data is from Instagram [NEEDED]
 
 			// Handle data from subscription
@@ -48,21 +53,30 @@ class Instagram extends Public_Controller
 			{
 				if($post->object == "user")
 				{
+					//$recent = $this->instagram_api->getUserRecent($post->object_id,null,null,intval((int) $post->time+60),null);
 					$recent = $this->instagram_api->getUserRecent($post->object_id);
-					if($recent)
+				}
+				elseif($post->object == "tag")
+				{
+					$recent = $this->instagram_api->tagsRecent($post->object_id);
+				}
+
+				if($recent)
+				{
+					foreach($recent->data as $v)
 					{
-						foreach($recent->data as $v)
-						{
-							$media_data = array(
-								"media_id" => $v->id,
-								"user_id" => $v->user->id,
-								"thumbnail" => $v->images->thumbnail->url,
-								"low_resolution" => $v->images->low_resolution->url,
-								"standard_resolution" => $v->images->standard_resolution->url,
-								"tags" => json_encode($v->tags),
-								"caption" => $v->caption->text,
-								"created_time" => $v->created_time
-							);
+						$media_data = array(
+							"media_id" => $v->id,
+							"user_id" => $v->user->id,
+							"object_id" => $post->object_id,
+							"thumbnail" => $v->images->thumbnail->url,
+							"low_resolution" => $v->images->low_resolution->url,
+							"standard_resolution" => $v->images->standard_resolution->url,
+							"caption" => @$v->caption->text,
+							"created_time" => $v->created_time
+						);
+						$query = $this->db->select('media_id')->where('media_id', $v->id)->get('instagram_media');
+						if($query->num_rows() == 0) {
 							$this->db->insert('instagram_media',$media_data);
 						}
 					}
